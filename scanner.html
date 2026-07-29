@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SAMS — Scanner</title>
+<link rel="stylesheet" href="../css/style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="mark">SAMS</div>
+      <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="students.html">Students</a>
+        <a href="teachers.html">Teachers</a>
+        <a href="attendance.html">Attendance</a>
+        <a href="scanner.html" class="active">Scanner</a>
+        <a href="reports.html">Reports</a>
+        <a href="settings.html">Settings</a>
+        <a href="#" id="logoutLink">Log out</a>
+      </nav>
+    </aside>
+    <main class="content">
+      <h1>Scan attendance</h1>
+
+      <div class="scanner-layout">
+        <div class="card scanner-card">
+          <div class="field session-field">
+            <label for="sessionSelect">Session</label>
+            <select id="sessionSelect">
+              <option value="AM">AM</option>
+              <option value="PM">PM</option>
+              <option value="Dismissal">Dismissal</option>
+            </select>
+          </div>
+
+          <div id="reader"></div>
+
+          <div class="scanner-controls">
+            <button class="btn-primary" id="startBtn">Start camera</button>
+            <button class="btn-secondary" id="stopBtn" disabled>Stop camera</button>
+          </div>
+
+          <p class="scanner-hint">Point the camera at a student's QR ID card. A result appears below after each scan.</p>
+        </div>
+
+        <div class="card result-card" id="resultCard">
+          <div class="result-empty">No scans yet this session.</div>
+        </div>
+      </div>
+
+      <div class="card log-card">
+        <h2>Recent scans</h2>
+        <table class="scan-log-table">
+          <thead>
+            <tr><th>Time</th><th>Name</th><th>Grade / Section</th><th>Status</th></tr>
+          </thead>
+          <tbody id="scanLogBody">
+            <tr><td colspan="4" class="empty-row">Scans will appear here as you go.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/scanner.js"></script>
+</body>
+</html>
