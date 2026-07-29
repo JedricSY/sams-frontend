@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SAMS — Sign in</title>
+<link rel="stylesheet" href="css/style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="login-screen">
+    <aside class="login-aside">
+      <div class="mark">SAMS</div>
+      <div class="tagline">Attendance you can scan, trust, and pull a report from in seconds.</div>
+      <div class="foot-note">School Attendance Management System</div>
+    </aside>
+    <main class="login-main">
+      <div class="login-card">
+        <h1>Sign in</h1>
+        <p class="sub">Use your school-issued account to continue.</p>
+
+        <div id="errorBanner" class="error-banner"></div>
+
+        <form id="loginForm">
+          <div class="field">
+            <label for="username">Username</label>
+            <input id="username" name="username" autocomplete="username" required />
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required />
+          </div>
+          <button class="btn-primary" type="submit" id="loginBtn">Sign in</button>
+        </form>
+
+        <p class="hint">Default admin (change immediately after setup): <strong>admin</strong> / <strong>admin123</strong></p>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SAMS — Dashboard</title>
+<link rel="stylesheet" href="../css/style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="mark">SAMS</div>
+      <nav>
+        <a href="dashboard.html" class="active">Dashboard</a>
+        <a href="students.html">Students</a>
+        <a href="teachers.html">Teachers</a>
+        <a href="attendance.html">Attendance</a>
+        <a href="scanner.html">Scanner</a>
+        <a href="reports.html">Reports</a>
+        <a href="settings.html">Settings</a>
+        <a href="#" id="logoutLink">Log out</a>
+      </nav>
+    </aside>
+    <main class="content">
+      <h1>Welcome<span id="welcomeName"></span></h1>
+      <div class="card" id="profileCard">Loading profile…</div>
+    </main>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script>
+    (function () {
+      if (!SAMS_API.isLoggedIn()) {
+        window.location.href = '../index.html';
+        return;
+      }
+
+      document.getElementById('logoutLink').addEventListener('click', async function (e) {
+        e.preventDefault();
+        await SAMS_API.call('logout', {});
+        SAMS_API.setToken(null);
+        window.location.href = '../index.html';
+      });
+
+      SAMS_API.call('getProfile', {}).then(function (result) {
+        const card = document.getElementById('profileCard');
+        if (!result.success) {
+          card.textContent = result.error || 'Could not load profile.';
+          return;
+        }
+        const p = result.data;
+        document.getElementById('welcomeName').textContent = ', ' + p.username;
+        card.innerHTML =
+          '<p><strong>Role:</strong> ' + p.role + '</p>' +
+          '<p><strong>Status:</strong> ' + p.status + '</p>' +
+          '<p><strong>Last login:</strong> ' + (p.lastLogin || '—') + '</p>';
+      });
+    })();
+  </script>
+</body>
+</html>
