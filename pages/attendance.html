@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SAMS — Attendance</title>
+<link rel="stylesheet" href="../css/style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="mark">SAMS</div>
+      <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="students.html">Students</a>
+        <a href="teachers.html">Teachers</a>
+        <a href="attendance.html" class="active">Attendance</a>
+        <a href="scanner.html">Scanner</a>
+        <a href="qr.html">QR Codes</a>
+        <a href="reports.html">Reports</a>
+        <a href="settings.html">Settings</a>
+        <a href="#" id="logoutLink">Log out</a>
+      </nav>
+    </aside>
+    <main class="content">
+      <h1>Attendance records</h1>
+
+      <div class="card">
+        <div class="filters-row report-filters">
+          <div class="field">
+            <label for="dateFrom">From</label>
+            <input type="date" id="dateFrom" />
+          </div>
+          <div class="field">
+            <label for="dateTo">To</label>
+            <input type="date" id="dateTo" />
+          </div>
+          <div class="field">
+            <label for="sessionFilter">Session</label>
+            <select id="sessionFilter">
+              <option value="">All sessions</option>
+              <option value="AM">AM</option>
+              <option value="PM">PM</option>
+              <option value="Dismissal">Dismissal</option>
+            </select>
+          </div>
+        </div>
+        <div class="report-actions">
+          <button class="btn-primary btn-inline" id="filterBtn">Apply filters</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Student</th>
+              <th>Session</th>
+              <th>Status</th>
+              <th>Gate</th>
+            </tr>
+          </thead>
+          <tbody id="attendanceBody">
+            <tr><td colspan="6" class="empty-row">Loading attendance…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/attendance.js"></script>
+</body>
+</html>

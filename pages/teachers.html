@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SAMS — Teachers</title>
+<link rel="stylesheet" href="../css/style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="mark">SAMS</div>
+      <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="students.html">Students</a>
+        <a href="teachers.html" class="active">Teachers</a>
+        <a href="attendance.html">Attendance</a>
+        <a href="scanner.html">Scanner</a>
+        <a href="qr.html">QR Codes</a>
+        <a href="reports.html">Reports</a>
+        <a href="settings.html">Settings</a>
+        <a href="#" id="logoutLink">Log out</a>
+      </nav>
+    </aside>
+    <main class="content">
+      <div class="page-header">
+        <h1>Teachers</h1>
+        <button class="btn-primary btn-inline" id="addTeacherBtn">+ Add teacher</button>
+      </div>
+
+      <div class="card">
+        <div class="filters-row">
+          <input type="text" id="searchInput" placeholder="Search by name or email…" />
+        </div>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Section assigned</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="teachersBody">
+            <tr><td colspan="5" class="empty-row">Loading teachers…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h2 id="modalTitle">Add teacher</h2>
+      <div id="modalError" class="error-banner"></div>
+
+      <form id="teacherForm">
+        <input type="hidden" id="f_teacherId" />
+
+        <div class="modal-grid">
+          <div class="field">
+            <label for="f_name">Full name</label>
+            <input id="f_name" required />
+          </div>
+          <div class="field">
+            <label for="f_email">Email</label>
+            <input id="f_email" type="email" />
+          </div>
+          <div class="field">
+            <label for="f_phone">Phone</label>
+            <input id="f_phone" />
+          </div>
+          <div class="field">
+            <label for="f_section">Section assigned</label>
+            <input id="f_section" placeholder="e.g. Grade 7 - Rizal" />
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="cancelBtn">Cancel</button>
+          <button type="submit" class="btn-primary btn-inline" id="saveBtn">Save teacher</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/teachers.js"></script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SAMS — QR Codes</title>
+<link rel="stylesheet" href="../css/style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+  <div class="app-shell" id="appShell">
+    <aside class="sidebar no-print">
+      <div class="mark">SAMS</div>
+      <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="students.html">Students</a>
+        <a href="teachers.html">Teachers</a>
+        <a href="attendance.html">Attendance</a>
+        <a href="scanner.html">Scanner</a>
+        <a href="qr.html" class="active">QR Codes</a>
+        <a href="reports.html">Reports</a>
+        <a href="settings.html">Settings</a>
+        <a href="#" id="logoutLink">Log out</a>
+      </nav>
+    </aside>
+    <main class="content">
+      <div class="page-header no-print">
+        <h1>QR ID cards</h1>
+        <button class="btn-primary btn-inline" id="printAllBtn">Print all shown</button>
+      </div>
+
+      <div class="card no-print">
+        <div class="filters-row">
+          <input type="text" id="searchInput" placeholder="Search by name or LRN…" />
+          <select id="gradeFilter"><option value="">All grades</option></select>
+          <select id="sectionFilter"><option value="">All sections</option></select>
+        </div>
+      </div>
+
+      <div id="cardsGrid" class="qr-cards-grid">
+        <p class="empty-row no-print">Loading students…</p>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/qr.js"></script>
+</body>
+</html>
