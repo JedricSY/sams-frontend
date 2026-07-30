@@ -1,5 +1,5 @@
 /**
- * scanner.js — Phase 6: QR Scanner
+ * scanner.js — Phase 6: QR Scanner (+ fullscreen kiosk mode)
  *
  * Uses html5-qrcode to read the camera feed. Every decoded QR string is the
  * student's QRUUID (see Students.gs / addStudent_), sent straight to the
@@ -7,8 +7,15 @@
  * scan counts as Success, Late, Duplicate, or Invalid; this file just
  * displays whatever comes back.
  *
- * A short cooldown after each scan stops the same still-visible QR code
- * from being read a dozen times a second while the student walks past.
+ * There are two scan surfaces sharing one camera controller: the normal
+ * in-app card, and a full-screen "kiosk" overlay meant for a tablet/PC
+ * mounted at a gate. Only one runs at a time — switching modes stops the
+ * camera in one container and restarts it in the other, since a browser
+ * can't stream the same camera into two <video> elements at once.
+ *
+ * Student photos: Photo is optional in the Students sheet. Whenever it's
+ * blank, both the normal result card and the kiosk view fall back to the
+ * school logo placeholder rather than a broken image icon.
  */
 
 (function () {
@@ -17,11 +24,12 @@
     return;
   }
 
-  const READER_ID = 'reader';
   const SCAN_COOLDOWN_MS = 2500;
+  const LOGO_SRC = '../assets/images/school-logo-placeholder.svg';
 
   let html5QrCode = null;
   let isRunning = false;
+  let activeContainer = null; // 'reader' | 'kioskReader'
   let lastScanTime = 0;
   let lastScanValue = '';
 
@@ -31,6 +39,17 @@
   const resultCard = document.getElementById('resultCard');
   const scanLogBody = document.getElementById('scanLogBody');
 
+  const kioskBtn = document.getElementById('kioskBtn');
+  const kioskOverlay = document.getElementById('kioskOverlay');
+  const kioskExitBtn = document.getElementById('kioskExitBtn');
+  const kioskSessionSelect = document.getElementById('kioskSessionSelect');
+  const kioskResultCard = document.getElementById('kioskResultCard');
+  const kioskResultPhoto = document.getElementById('kioskResultPhoto');
+  const kioskResultStatus = document.getElementById('kioskResultStatus');
+  const kioskResultName = document.getElementById('kioskResultName');
+  const kioskResultMeta = document.getElementById('kioskResultMeta');
+  const kioskClock = document.getElementById('kioskClock');
+
   document.getElementById('logoutLink').addEventListener('click', async function (e) {
     e.preventDefault();
     await SAMS_API.call('logout', {});
@@ -38,22 +57,34 @@
     window.location.href = '../index.html';
   });
 
-  async function startScanner() {
-    if (isRunning) return;
-    html5QrCode = new Html5Qrcode(READER_ID);
+  function currentSession() {
+    return activeContainer === 'kioskReader' ? kioskSessionSelect.value : sessionSelect.value;
+  }
+
+  async function startScanner(containerId) {
+    if (isRunning) await stopScanner();
+    html5QrCode = new Html5Qrcode(containerId);
+    activeContainer = containerId;
 
     try {
       await html5QrCode.start(
         { facingMode: 'environment' },
-        { fps: 10, qrbox: { width: 260, height: 260 } },
+        { fps: 10, qrbox: { width: containerId === 'kioskReader' ? 340 : 260, height: containerId === 'kioskReader' ? 340 : 260 } },
         onScanSuccess,
         function () { /* per-frame decode failures are normal, ignore */ }
       );
       isRunning = true;
-      startBtn.disabled = true;
-      stopBtn.disabled = false;
+      if (containerId === 'reader') {
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+      }
     } catch (err) {
-      showResult('error', 'Could not access the camera: ' + err);
+      const message = 'Could not access the camera: ' + err;
+      if (containerId === 'kioskReader') {
+        kioskResultMeta.textContent = message;
+      } else {
+        showResult('error', message);
+      }
     }
   }
 
@@ -78,25 +109,31 @@
     lastScanValue = decodedText;
     lastScanTime = now;
 
-    showResult('pending', 'Checking…');
+    const inKiosk = activeContainer === 'kioskReader';
+    if (inKiosk) showKioskResult('pending', 'Checking…', '', LOGO_SRC);
+    else showResult('pending', 'Checking…');
 
     const result = await SAMS_API.call('scanQR', {
       qrUuid: decodedText,
-      session: sessionSelect.value,
-      gate: 'Main',
+      session: currentSession(),
+      gate: inKiosk ? 'Kiosk' : 'Main',
       device: navigator.userAgent.slice(0, 40),
     });
 
     if (!result.success) {
-      showResult('error', result.error || 'Scan failed.');
+      if (inKiosk) showKioskResult('error', result.error || 'Scan failed.', '', LOGO_SRC);
+      else showResult('error', result.error || 'Scan failed.');
       return;
     }
 
-    renderScanResult(result.data);
+    if (inKiosk) renderKioskResult(result.data);
+    else renderScanResult(result.data);
   }
 
+  // ---------- Normal (in-app) result rendering ----------
+
   function renderScanResult(data) {
-    const status = data.status; // Success | Late | Duplicate | Invalid
+    const status = data.status;
 
     if (status === 'Invalid') {
       showResult('invalid', 'QR code not recognized.');
@@ -106,13 +143,48 @@
 
     const student = data.student;
     const label = statusLabel(status);
+    const photoSrc = student.photo || LOGO_SRC;
 
     resultCard.innerHTML =
+      '<img src="' + photoSrc + '" alt="" class="result-photo" onerror="this.src=\'' + LOGO_SRC + '\'" />' +
       '<div class="result-status status-chip ' + status.toLowerCase() + '">' + label + '</div>' +
       '<div class="result-name">' + student.name + '</div>' +
       '<div class="result-meta">Grade ' + student.grade + ' — ' + student.section + '</div>';
 
     prependLogRow(nowTime(), student.name, 'Grade ' + student.grade + ' / ' + student.section, status);
+  }
+
+  function showResult(kind, message) {
+    resultCard.innerHTML = '<div class="result-empty ' + kind + '">' + message + '</div>';
+  }
+
+  // ---------- Kiosk result rendering ----------
+
+  function renderKioskResult(data) {
+    const status = data.status;
+
+    if (status === 'Invalid') {
+      showKioskResult('invalid', 'QR code not recognized', '', LOGO_SRC);
+      return;
+    }
+
+    const student = data.student;
+    kioskResultCard.className = 'kiosk-result-pane state-' + status.toLowerCase();
+    kioskResultPhoto.src = student.photo || LOGO_SRC;
+    kioskResultPhoto.onerror = function () { kioskResultPhoto.src = LOGO_SRC; };
+    kioskResultStatus.textContent = statusLabel(status);
+    kioskResultStatus.className = 'kiosk-result-status status-chip ' + status.toLowerCase();
+    kioskResultName.textContent = student.name;
+    kioskResultMeta.textContent = 'Grade ' + student.grade + ' — ' + student.section;
+  }
+
+  function showKioskResult(kind, message, name, photoSrc) {
+    kioskResultCard.className = 'kiosk-result-pane state-' + kind;
+    kioskResultPhoto.src = photoSrc;
+    kioskResultStatus.textContent = '';
+    kioskResultStatus.className = 'kiosk-result-status';
+    kioskResultName.textContent = name || message;
+    kioskResultMeta.textContent = name ? message : '';
   }
 
   function statusLabel(status) {
@@ -122,10 +194,6 @@
       case 'Duplicate': return 'Already recorded today';
       default: return status;
     }
-  }
-
-  function showResult(kind, message) {
-    resultCard.innerHTML = '<div class="result-empty ' + kind + '">' + message + '</div>';
   }
 
   function prependLogRow(time, name, gradeSection, status) {
@@ -145,10 +213,63 @@
     return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   }
 
-  startBtn.addEventListener('click', startScanner);
+  // ---------- Kiosk mode open/close ----------
+
+  let clockInterval = null;
+
+  async function enterKiosk() {
+    kioskSessionSelect.value = sessionSelect.value;
+    kioskOverlay.classList.add('visible');
+    document.body.classList.add('kiosk-active');
+
+    clockInterval = setInterval(updateKioskClock, 1000);
+    updateKioskClock();
+
+    // Best-effort native fullscreen; the overlay itself already covers the
+    // viewport via CSS, so this still works fine if the browser blocks it.
+    const el = kioskOverlay;
+    const request = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+    if (request) {
+      try { await request.call(el); } catch (err) { /* not fatal */ }
+    }
+
+    startScanner('kioskReader');
+  }
+
+  async function exitKiosk() {
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      const exit = document.exitFullscreen || document.webkitExitFullscreen;
+      if (exit) { try { await exit.call(document); } catch (err) { /* not fatal */ } }
+    }
+
+    clearInterval(clockInterval);
+    kioskOverlay.classList.remove('visible');
+    document.body.classList.remove('kiosk-active');
+
+    await stopScanner();
+    showResult('empty', 'No scans yet this session.');
+  }
+
+  function updateKioskClock() {
+    const now = new Date();
+    kioskClock.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) +
+      ' · ' + now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
+  }
+
+  kioskBtn.addEventListener('click', enterKiosk);
+  kioskExitBtn.addEventListener('click', exitKiosk);
+
+  // If the user backs out of native fullscreen (Esc key), close kiosk mode
+  // fully rather than leaving a windowed overlay stuck on screen.
+  document.addEventListener('fullscreenchange', function () {
+    if (!document.fullscreenElement && kioskOverlay.classList.contains('visible')) {
+      exitKiosk();
+    }
+  });
+
+  startBtn.addEventListener('click', function () { startScanner('reader'); });
   stopBtn.addEventListener('click', stopScanner);
 
-  // Stop the camera cleanly if the user navigates away.
   window.addEventListener('beforeunload', function () {
     if (isRunning) stopScanner();
   });
