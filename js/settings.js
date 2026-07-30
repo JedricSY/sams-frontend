@@ -18,11 +18,62 @@
   const passwordStatus = document.getElementById('passwordStatus');
   const savePasswordBtn = document.getElementById('savePasswordBtn');
 
+  const logoError = document.getElementById('logoError');
+  const logoStatus = document.getElementById('logoStatus');
+  const logoPreview = document.getElementById('logoPreview');
+  const logoInput = document.getElementById('f_logo');
+
   document.getElementById('logoutLink').addEventListener('click', async function (e) {
     e.preventDefault();
     await SAMS_API.call('logout', {});
     SAMS_API.setToken(null);
     window.location.href = '../index.html';
+  });
+
+  // ---------- School branding ----------
+
+  SAMS_API.getBranding().then(function (result) {
+    if (result.success && result.data && result.data.logoUrl) {
+      logoPreview.src = result.data.logoUrl;
+    }
+  });
+
+  logoInput.addEventListener('change', async function () {
+    const file = logoInput.files[0];
+    if (!file) return;
+
+    logoError.classList.remove('visible');
+    logoStatus.textContent = '';
+
+    if (file.size > 4 * 1024 * 1024) {
+      logoError.textContent = 'Logo image is too large (max 4MB).';
+      logoError.classList.add('visible');
+      logoInput.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async function () {
+      logoPreview.src = reader.result;
+      logoStatus.textContent = 'Uploading…';
+
+      const result = await SAMS_API.call('uploadPhoto', {
+        targetType: 'school',
+        imageBase64: reader.result,
+        mimeType: file.type || 'image/png',
+      });
+
+      if (!result.success) {
+        logoError.textContent = result.error || 'Could not upload logo.';
+        logoError.classList.add('visible');
+        logoStatus.textContent = '';
+        return;
+      }
+
+      logoStatus.textContent = 'Logo updated. It will appear on other pages next time they load.';
+      setTimeout(function () { logoStatus.textContent = ''; }, 5000);
+    };
+    reader.readAsDataURL(file);
   });
 
   // ---------- Attendance session times ----------
