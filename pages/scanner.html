@@ -19,13 +19,17 @@
         <a href="teachers.html">Teachers</a>
         <a href="attendance.html">Attendance</a>
         <a href="scanner.html" class="active">Scanner</a>
+        <a href="qr.html">QR Codes</a>
         <a href="reports.html">Reports</a>
         <a href="settings.html">Settings</a>
         <a href="#" id="logoutLink">Log out</a>
       </nav>
     </aside>
     <main class="content">
-      <h1>Scan attendance</h1>
+      <div class="page-header">
+        <h1>Scan attendance</h1>
+        <button class="btn-primary btn-inline" id="kioskBtn">⛶ Full screen kiosk mode</button>
+      </div>
 
       <div class="scanner-layout">
         <div class="card scanner-card">
@@ -65,6 +69,40 @@
         </table>
       </div>
     </main>
+  </div>
+
+  <!-- Full screen kiosk overlay: a separate, large-format scanning view meant
+       for a tablet or PC mounted at a gate, away from the admin sidebar. -->
+  <div class="kiosk-overlay" id="kioskOverlay">
+    <div class="kiosk-topbar">
+      <div class="kiosk-brand">
+        <img src="../assets/images/school-logo-placeholder.svg" alt="" class="kiosk-brand-logo" />
+        <span>SAMS Attendance</span>
+      </div>
+      <div class="kiosk-session">
+        <label for="kioskSessionSelect">Session</label>
+        <select id="kioskSessionSelect">
+          <option value="AM">AM</option>
+          <option value="PM">PM</option>
+          <option value="Dismissal">Dismissal</option>
+        </select>
+      </div>
+      <button class="kiosk-exit" id="kioskExitBtn">✕ Exit kiosk mode</button>
+    </div>
+
+    <div class="kiosk-body">
+      <div class="kiosk-camera-pane">
+        <div id="kioskReader"></div>
+        <div class="kiosk-clock" id="kioskClock"></div>
+      </div>
+
+      <div class="kiosk-result-pane" id="kioskResultCard">
+        <img src="../assets/images/school-logo-placeholder.svg" alt="" class="kiosk-result-photo" id="kioskResultPhoto" />
+        <div class="kiosk-result-status" id="kioskResultStatus"></div>
+        <div class="kiosk-result-name" id="kioskResultName">Ready to scan</div>
+        <div class="kiosk-result-meta" id="kioskResultMeta">Point a student's QR card at the camera.</div>
+      </div>
+    </div>
   </div>
 
   <script src="../js/api.js"></script>
