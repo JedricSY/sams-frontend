@@ -319,6 +319,16 @@ a { color: inherit; }
   margin-bottom: 10px;
 }
 
+.result-photo {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--border);
+  margin-bottom: 12px;
+  background: var(--navy-950);
+}
+
 .result-name {
   font-family: var(--font-display);
   font-size: 24px;
@@ -532,4 +542,266 @@ a { color: inherit; }
 
 .table-scroll {
   overflow-x: auto;
+}
+
+/* ---------- Fullscreen kiosk mode (scanner) ---------- */
+
+.kiosk-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--navy-950);
+  flex-direction: column;
+}
+
+.kiosk-overlay.visible { display: flex; }
+
+body.kiosk-active { overflow: hidden; }
+
+.kiosk-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 28px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  color: var(--navy-100);
+}
+
+.kiosk-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: 20px;
+}
+
+.kiosk-brand-logo { width: 32px; height: 32px; }
+
+.kiosk-session {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.kiosk-session select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: var(--navy-800);
+  color: #fff;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.kiosk-exit {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.kiosk-exit:hover { background: rgba(255,255,255,0.16); }
+
+.kiosk-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 0;
+  min-height: 0;
+}
+
+@media (max-width: 860px) {
+  .kiosk-body { grid-template-columns: 1fr; }
+}
+
+.kiosk-camera-pane {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  position: relative;
+}
+
+.kiosk-camera-pane #kioskReader {
+  width: 100%;
+  max-width: 480px;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.kiosk-clock {
+  margin-top: 24px;
+  color: var(--navy-100);
+  font-family: var(--font-display);
+  font-size: 20px;
+  letter-spacing: 0.02em;
+}
+
+.kiosk-result-pane {
+  background: var(--paper);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px;
+  transition: background 0.2s ease;
+}
+
+.kiosk-result-pane.state-success { background: #e3f4ea; }
+.kiosk-result-pane.state-late { background: #fdf1de; }
+.kiosk-result-pane.state-invalid,
+.kiosk-result-pane.state-error,
+.kiosk-result-pane.state-duplicate { background: #fbe9e7; }
+
+.kiosk-result-photo {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 5px solid #fff;
+  box-shadow: 0 4px 18px rgba(15,27,45,0.15);
+  margin-bottom: 20px;
+  background: var(--navy-950);
+}
+
+.kiosk-result-status {
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+
+.kiosk-result-name {
+  font-family: var(--font-display);
+  font-size: 34px;
+  color: var(--ink);
+}
+
+.kiosk-result-meta {
+  font-size: 16px;
+  color: var(--ink-muted);
+  margin-top: 6px;
+}
+
+/* ---------- QR ID card grid ---------- */
+
+.qr-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.id-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px;
+  text-align: center;
+}
+
+.id-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.id-card-logo { width: 22px; height: 22px; }
+
+.id-card-school {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+
+.id-card-qr {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.id-card-name {
+  font-family: var(--font-display);
+  font-size: 17px;
+}
+
+.id-card-meta {
+  font-size: 13px;
+  color: var(--ink-muted);
+  margin-top: 2px;
+}
+
+.id-card-lrn {
+  font-size: 12px;
+  color: var(--ink-muted);
+  margin-top: 6px;
+}
+
+@media print {
+  .no-print { display: none !important; }
+  .app-shell { display: block; }
+  .content { padding: 0; }
+  .qr-cards-grid { grid-template-columns: repeat(3, 1fr); }
+  .id-card { break-inside: avoid; box-shadow: none; }
+}
+
+/* ---------- Settings page ---------- */
+
+.settings-section { margin-bottom: 20px; }
+
+.settings-section h2 {
+  font-family: var(--font-display);
+  font-size: 19px;
+  margin-top: 0;
+  margin-bottom: 4px;
+}
+
+.section-sub {
+  color: var(--ink-muted);
+  font-size: 13px;
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.sessions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.session-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.session-name { font-weight: 600; }
+
+.session-time-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--ink-muted);
+}
+
+.session-time-label input[type="time"] {
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 14px;
 }
