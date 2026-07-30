@@ -144,5 +144,63 @@
   modalOverlay.addEventListener('click', function (e) { if (e.target === modalOverlay) closeModal(); });
   searchInput.addEventListener('input', renderTable);
 
+  // ---------- Bulk import ----------
+
+  const EXPECTED_HEADERS = ['Name', 'Email', 'Phone', 'SectionAssigned'];
+  const bulkModalOverlay = document.getElementById('bulkModalOverlay');
+  const bulkError = document.getElementById('bulkError');
+  const bulkStatus = document.getElementById('bulkStatus');
+  const bulkTextarea = document.getElementById('bulkTextarea');
+
+  document.getElementById('bulkImportBtn').addEventListener('click', function () {
+    bulkError.classList.remove('visible');
+    bulkStatus.textContent = '';
+    bulkTextarea.value = '';
+    bulkModalOverlay.classList.add('visible');
+  });
+
+  document.getElementById('bulkCancelBtn').addEventListener('click', function () {
+    bulkModalOverlay.classList.remove('visible');
+  });
+
+  bulkModalOverlay.addEventListener('click', function (e) {
+    if (e.target === bulkModalOverlay) bulkModalOverlay.classList.remove('visible');
+  });
+
+  document.getElementById('bulkSubmitBtn').addEventListener('click', async function () {
+    bulkError.classList.remove('visible');
+    bulkStatus.textContent = '';
+
+    const rows = CsvUtils.parse(bulkTextarea.value, EXPECTED_HEADERS);
+    if (rows.length === 0) {
+      bulkError.textContent = 'Paste at least one row of teacher data.';
+      bulkError.classList.add('visible');
+      return;
+    }
+
+    const btn = document.getElementById('bulkSubmitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Importing…';
+
+    const result = await SAMS_API.call('bulkImportTeachers', { rows: rows });
+
+    btn.disabled = false;
+    btn.textContent = 'Import teachers';
+
+    if (!result.success) {
+      bulkError.textContent = result.error || 'Import failed.';
+      bulkError.classList.add('visible');
+      return;
+    }
+
+    bulkStatus.textContent = result.data.created + ' teacher(s) imported' +
+      (result.data.skipped ? ', ' + result.data.skipped + ' row(s) skipped (see below).' : '.');
+    if (result.data.errors && result.data.errors.length > 0) {
+      bulkStatus.textContent += ' ' + result.data.errors.join(' ');
+    }
+
+    loadTeachers();
+  });
+
   loadTeachers();
 })();
