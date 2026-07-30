@@ -485,3 +485,51 @@ a { color: inherit; }
 
 .modal-actions .btn-secondary,
 .modal-actions .btn-primary { width: auto; }
+
+/* ---------- Reports page ---------- */
+
+.report-filters {
+  flex-wrap: wrap;
+}
+
+.report-filters .field {
+  margin-bottom: 0;
+}
+
+.report-filters .field label {
+  margin-bottom: 4px;
+}
+
+.report-filters input,
+.report-filters select {
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.report-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.report-actions .btn-inline,
+.report-actions .btn-secondary { width: auto; }
+
+.report-status {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--ink-muted);
+}
+
+.report-summary {
+  color: var(--ink-muted);
+  font-size: 13px;
+  margin-top: 0;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
