@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SAMS — Reports</title>
+<link rel="stylesheet" href="../css/style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="mark">SAMS</div>
+      <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="students.html">Students</a>
+        <a href="teachers.html">Teachers</a>
+        <a href="attendance.html">Attendance</a>
+        <a href="scanner.html">Scanner</a>
+        <a href="reports.html" class="active">Reports</a>
+        <a href="settings.html">Settings</a>
+        <a href="#" id="logoutLink">Log out</a>
+      </nav>
+    </aside>
+    <main class="content">
+      <h1>Reports</h1>
+
+      <div class="card">
+        <div class="filters-row report-filters">
+          <div class="field">
+            <label for="dateFrom">From</label>
+            <input type="date" id="dateFrom" />
+          </div>
+          <div class="field">
+            <label for="dateTo">To</label>
+            <input type="date" id="dateTo" />
+          </div>
+          <div class="field">
+            <label for="sessionFilter">Session</label>
+            <select id="sessionFilter">
+              <option value="">All sessions</option>
+              <option value="AM">AM</option>
+              <option value="PM">PM</option>
+              <option value="Dismissal">Dismissal</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="gradeFilter">Grade</label>
+            <input id="gradeFilter" placeholder="e.g. 7" />
+          </div>
+          <div class="field">
+            <label for="sectionFilter">Section</label>
+            <input id="sectionFilter" placeholder="e.g. Rizal" />
+          </div>
+        </div>
+
+        <div class="report-actions">
+          <button class="btn-primary btn-inline" id="generateBtn">Generate report</button>
+          <button class="btn-secondary" id="downloadBtn" disabled>Download CSV</button>
+        </div>
+
+        <div id="reportStatus" class="report-status"></div>
+      </div>
+
+      <div class="card" id="previewCard" style="display:none;">
+        <h2>Preview</h2>
+        <p class="report-summary" id="reportSummary"></p>
+        <div class="table-scroll">
+          <table class="data-table" id="previewTable"></table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/reports.js"></script>
+</body>
+</html>
