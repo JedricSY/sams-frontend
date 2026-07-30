@@ -27,7 +27,10 @@
     <main class="content">
       <div class="page-header">
         <h1>Teachers</h1>
-        <button class="btn-primary btn-inline" id="addTeacherBtn">+ Add teacher</button>
+        <div class="page-header-actions">
+          <button class="btn-secondary" id="bulkImportBtn">Bulk import</button>
+          <button class="btn-primary btn-inline" id="addTeacherBtn">+ Add teacher</button>
+        </div>
       </div>
 
       <div class="card">
@@ -88,7 +91,29 @@
     </div>
   </div>
 
+  <!-- Bulk import modal -->
+  <div class="modal-overlay" id="bulkModalOverlay">
+    <div class="modal">
+      <h2>Bulk import teachers</h2>
+      <p class="section-sub">
+        Paste CSV data below, one teacher per line, in this order:<br />
+        <code>Name,Email,Phone,SectionAssigned</code><br />
+        A header row is optional — it's detected automatically.
+      </p>
+      <div id="bulkError" class="error-banner"></div>
+      <div id="bulkStatus" class="report-status"></div>
+      <textarea id="bulkTextarea" class="bulk-textarea" placeholder="Name,Email,Phone,SectionAssigned
+Maria Santos,maria.santos@school.edu,09171234567,Grade 7 - Rizal
+Juan Reyes,juan.reyes@school.edu,09179876543,Grade 8 - Bonifacio"></textarea>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" id="bulkCancelBtn">Cancel</button>
+        <button type="button" class="btn-primary btn-inline" id="bulkSubmitBtn">Import teachers</button>
+      </div>
+    </div>
+  </div>
+
   <script src="../js/api.js"></script>
+  <script src="../js/csv-utils.js"></script>
   <script src="../js/teachers.js"></script>
 </body>
 </html>
