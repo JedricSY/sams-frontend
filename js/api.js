@@ -13,7 +13,7 @@
 
 const SAMS_API = (function () {
   // Fill this in after deploying the Apps Script project as a Web App.
-  const API_URL = 'https://script.google.com/macros/s/PASTE_YOUR_DEPLOYMENT_ID/exec';
+  const API_URL = 'https://script.google.com/macros/s/AKfycbz_bHw92cy7bqkauPwOs134E19rhza0gF3Jmt83DMVjLOfr9-bJjcCFSHpx9MAAHMBH/exec';
 
   function getToken() {
     return sessionStorage.getItem('sams_token') || '';
