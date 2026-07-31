@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SAMS — Settings</title>
+<link rel="stylesheet" href="../css/style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="mark">SAMS</div>
+      <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="students.html">Students</a>
+        <a href="teachers.html">Teachers</a>
+        <a href="attendance.html">Attendance</a>
+        <a href="scanner.html">Scanner</a>
+        <a href="qr.html">QR Codes</a>
+        <a href="reports.html">Reports</a>
+        <a href="settings.html" class="active">Settings</a>
+        <a href="#" id="logoutLink">Log out</a>
+      </nav>
+    </aside>
+    <main class="content">
+      <h1>Settings</h1>
+
+      <div class="card settings-section">
+        <h2>School branding</h2>
+        <p class="section-sub">Upload your school's logo. It replaces the default placeholder in the sidebar, the scanner's kiosk mode, and printed QR ID cards.</p>
+        <div id="logoError" class="error-banner"></div>
+        <div id="logoStatus" class="report-status"></div>
+        <div class="logo-upload-row">
+          <img id="logoPreview" src="../assets/images/school-logo-placeholder.svg" class="logo-preview" alt="" />
+          <div>
+            <label class="btn-secondary photo-upload-btn" for="f_logo">Choose logo image</label>
+            <input type="file" id="f_logo" accept="image/*" style="display:none;" />
+            <p class="section-sub" style="margin:6px 0 0;">Square images work best (e.g. 400×400).</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card settings-section">
+        <h2>Attendance session times</h2>
+        <p class="section-sub">Scans recorded after a session's start time are marked <strong>Late</strong> instead of on-time.</p>
+        <div id="sessionsError" class="error-banner"></div>
+        <div id="sessionsStatus" class="report-status"></div>
+        <div id="sessionsList" class="sessions-list">Loading…</div>
+        <button class="btn-primary btn-inline" id="saveSessionsBtn">Save session times</button>
+      </div>
+
+      <div class="card settings-section">
+        <h2>Change password</h2>
+        <p class="section-sub">You'll need your current password to set a new one.</p>
+        <div id="passwordError" class="error-banner"></div>
+        <div id="passwordStatus" class="report-status"></div>
+        <form id="passwordForm">
+          <div class="modal-grid">
+            <div class="field">
+              <label for="currentPassword">Current password</label>
+              <input id="currentPassword" type="password" autocomplete="current-password" required />
+            </div>
+            <div class="field"></div>
+            <div class="field">
+              <label for="newPassword">New password</label>
+              <input id="newPassword" type="password" autocomplete="new-password" required minlength="8" />
+            </div>
+            <div class="field">
+              <label for="confirmPassword">Confirm new password</label>
+              <input id="confirmPassword" type="password" autocomplete="new-password" required minlength="8" />
+            </div>
+          </div>
+          <button type="submit" class="btn-primary btn-inline" id="savePasswordBtn">Update password</button>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/settings.js"></script>
+</body>
+</html>

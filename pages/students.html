@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SAMS — Students</title>
+<link rel="stylesheet" href="../css/style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="mark">SAMS</div>
+      <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="students.html" class="active">Students</a>
+        <a href="teachers.html">Teachers</a>
+        <a href="attendance.html">Attendance</a>
+        <a href="scanner.html">Scanner</a>
+        <a href="qr.html">QR Codes</a>
+        <a href="reports.html">Reports</a>
+        <a href="settings.html">Settings</a>
+        <a href="#" id="logoutLink">Log out</a>
+      </nav>
+    </aside>
+    <main class="content">
+      <div class="page-header">
+        <h1>Students</h1>
+        <div class="page-header-actions">
+          <button class="btn-secondary" id="bulkImportBtn">Bulk import</button>
+          <button class="btn-primary btn-inline" id="addStudentBtn">+ Add student</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="filters-row">
+          <input type="text" id="searchInput" placeholder="Search by name or LRN…" />
+          <select id="gradeFilter">
+            <option value="">All grades</option>
+          </select>
+          <select id="sectionFilter">
+            <option value="">All sections</option>
+          </select>
+        </div>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>LRN</th>
+              <th>Name</th>
+              <th>Grade</th>
+              <th>Section</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="studentsBody">
+            <tr><td colspan="7" class="empty-row">Loading students…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add / Edit modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h2 id="modalTitle">Add student</h2>
+      <div id="modalError" class="error-banner"></div>
+
+      <form id="studentForm">
+        <input type="hidden" id="f_studentId" />
+
+        <div class="photo-upload-row">
+          <img id="photoPreview" src="../assets/images/school-logo-placeholder.svg" class="photo-preview" alt="" />
+          <div>
+            <label class="btn-secondary photo-upload-btn" for="f_photo">Choose photo</label>
+            <input type="file" id="f_photo" accept="image/*" style="display:none;" />
+            <p class="section-sub" style="margin:6px 0 0;">Optional. Shown in scan results and the kiosk view.</p>
+          </div>
+        </div>
+
+        <div class="modal-grid">
+          <div class="field">
+            <label for="f_lrn">LRN</label>
+            <input id="f_lrn" required />
+          </div>
+          <div class="field">
+            <label for="f_gender">Gender</label>
+            <select id="f_gender">
+              <option value="">—</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f_lastName">Last name</label>
+            <input id="f_lastName" required />
+          </div>
+          <div class="field">
+            <label for="f_firstName">First name</label>
+            <input id="f_firstName" required />
+          </div>
+          <div class="field">
+            <label for="f_middleName">Middle name</label>
+            <input id="f_middleName" />
+          </div>
+          <div class="field">
+            <label for="f_grade">Grade</label>
+            <input id="f_grade" placeholder="e.g. 7" />
+          </div>
+          <div class="field">
+            <label for="f_section">Section</label>
+            <input id="f_section" placeholder="e.g. Rizal" />
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="cancelBtn">Cancel</button>
+          <button type="submit" class="btn-primary btn-inline" id="saveBtn">Save student</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Bulk import modal -->
+  <div class="modal-overlay" id="bulkModalOverlay">
+    <div class="modal">
+      <h2>Bulk import students</h2>
+      <p class="section-sub">
+        Paste CSV data below, one student per line, in this order:<br />
+        <code>LRN,LastName,FirstName,MiddleName,Gender,Grade,Section</code><br />
+        A header row is optional — it's detected automatically. Every student gets a QR code generated automatically, same as adding one at a time.
+      </p>
+      <div id="bulkError" class="error-banner"></div>
+      <div id="bulkStatus" class="report-status"></div>
+      <textarea id="bulkTextarea" class="bulk-textarea" placeholder="LRN,LastName,FirstName,MiddleName,Gender,Grade,Section
+123456,Santos,Maria,Cruz,Female,7,Rizal
+123457,Reyes,Juan,Dela,Male,7,Rizal"></textarea>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" id="bulkCancelBtn">Cancel</button>
+        <button type="button" class="btn-primary btn-inline" id="bulkSubmitBtn">Import students</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/csv-utils.js"></script>
+  <script src="../js/students.js"></script>
+</body>
+</html>
