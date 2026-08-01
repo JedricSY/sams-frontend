@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SAMS — My Attendance</title>
+<link rel="stylesheet" href="../css/style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="student-shell">
+    <header class="student-topbar">
+      <div class="mark">SAMS</div>
+      <a href="#" id="logoutLink" class="btn-secondary btn-inline">Log out</a>
+    </header>
+
+    <main class="student-content">
+      <div class="card student-profile-card" id="profileCard">
+        <div class="student-profile-loading">Loading your profile…</div>
+      </div>
+
+      <div class="card">
+        <div class="page-header">
+          <h2>My attendance</h2>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Session</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="attendanceBody">
+            <tr><td colspan="4" class="empty-row">Loading your attendance…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/student.js"></script>
+</body>
+</html>
