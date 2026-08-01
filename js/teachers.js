@@ -1,5 +1,5 @@
 /**
- * teachers.js — Teacher Management
+ * teachers.js — Teacher Management (+ photo upload, bulk import)
  */
 
 (function () {
@@ -8,7 +8,10 @@
     return;
   }
 
+  const PLACEHOLDER_PHOTO = '../assets/images/school-logo-placeholder.svg';
+
   let allTeachers = [];
+  let pendingPhotoDataUrl = null;
 
   const teachersBody = document.getElementById('teachersBody');
   const searchInput = document.getElementById('searchInput');
@@ -16,6 +19,8 @@
   const modalTitle = document.getElementById('modalTitle');
   const modalError = document.getElementById('modalError');
   const teacherForm = document.getElementById('teacherForm');
+  const photoPreview = document.getElementById('photoPreview');
+  const photoInput = document.getElementById('f_photo');
 
   document.getElementById('logoutLink').addEventListener('click', async function (e) {
     e.preventDefault();
@@ -27,7 +32,7 @@
   async function loadTeachers() {
     const result = await SAMS_API.call('getTeachers', {});
     if (!result.success) {
-      teachersBody.innerHTML = '<tr><td colspan="5" class="empty-row">' + (result.error || 'Could not load teachers.') + '</td></tr>';
+      teachersBody.innerHTML = '<tr><td colspan="6" class="empty-row">' + (result.error || 'Could not load teachers.') + '</td></tr>';
       return;
     }
     allTeachers = result.data || [];
@@ -42,12 +47,14 @@
     });
 
     if (filtered.length === 0) {
-      teachersBody.innerHTML = '<tr><td colspan="5" class="empty-row">No teachers match this search.</td></tr>';
+      teachersBody.innerHTML = '<tr><td colspan="6" class="empty-row">No teachers match this search.</td></tr>';
       return;
     }
 
     teachersBody.innerHTML = filtered.map(function (t) {
+      const photoSrc = t.Photo || PLACEHOLDER_PHOTO;
       return '<tr>' +
+        '<td><img src="' + photoSrc + '" class="row-thumb" alt="" onerror="this.src=\'' + PLACEHOLDER_PHOTO + '\'" /></td>' +
         '<td>' + escapeHtml(t.Name) + '</td>' +
         '<td>' + escapeHtml(t.Email) + '</td>' +
         '<td>' + escapeHtml(t.Phone) + '</td>' +
@@ -75,6 +82,8 @@
   function openModal(teacherId) {
     modalError.classList.remove('visible');
     teacherForm.reset();
+    pendingPhotoDataUrl = null;
+    photoPreview.src = PLACEHOLDER_PHOTO;
 
     if (teacherId) {
       const t = allTeachers.find(function (r) { return String(r.TeacherID) === String(teacherId); });
@@ -84,6 +93,7 @@
       document.getElementById('f_email').value = t.Email || '';
       document.getElementById('f_phone').value = t.Phone || '';
       document.getElementById('f_section').value = t.SectionAssigned || '';
+      if (t.Photo) photoPreview.src = t.Photo;
     } else {
       modalTitle.textContent = 'Add teacher';
       document.getElementById('f_teacherId').value = '';
@@ -95,6 +105,25 @@
   function closeModal() {
     modalOverlay.classList.remove('visible');
   }
+
+  photoInput.addEventListener('change', function () {
+    const file = photoInput.files[0];
+    if (!file) return;
+
+    if (file.size > 4 * 1024 * 1024) {
+      modalError.textContent = 'Photo is too large (max 4MB).';
+      modalError.classList.add('visible');
+      photoInput.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function () {
+      pendingPhotoDataUrl = reader.result;
+      photoPreview.src = pendingPhotoDataUrl;
+    };
+    reader.readAsDataURL(file);
+  });
 
   async function confirmDelete(teacherId) {
     const t = allTeachers.find(function (r) { return String(r.TeacherID) === String(teacherId); });
@@ -121,20 +150,43 @@
       SectionAssigned: document.getElementById('f_section').value.trim(),
     };
 
+    const saveBtn = document.getElementById('saveBtn');
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving…';
+
     let result;
+    let resolvedTeacherId = teacherId;
     if (teacherId) {
       payload.TeacherID = teacherId;
       result = await SAMS_API.call('editTeacher', { teacher: payload });
     } else {
       result = await SAMS_API.call('addTeacher', { teacher: payload });
+      if (result.success) resolvedTeacherId = result.data.teacherId;
     }
 
     if (!result.success) {
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save teacher';
       modalError.textContent = result.error || 'Could not save teacher.';
       modalError.classList.add('visible');
       return;
     }
 
+    if (pendingPhotoDataUrl && resolvedTeacherId) {
+      saveBtn.textContent = 'Uploading photo…';
+      const photoResult = await SAMS_API.call('uploadPhoto', {
+        targetType: 'teacher',
+        teacherId: resolvedTeacherId,
+        imageBase64: pendingPhotoDataUrl,
+        mimeType: (photoInput.files[0] && photoInput.files[0].type) || 'image/jpeg',
+      });
+      if (!photoResult.success) {
+        window.alert('Teacher saved, but the photo upload failed: ' + (photoResult.error || 'unknown error'));
+      }
+    }
+
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save teacher';
     closeModal();
     loadTeachers();
   });
