@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="../css/style.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.3/chart.umd.min.js"></script>
 </head>
 <body>
   <div class="app-shell">
@@ -18,6 +19,7 @@
         <a href="teachers.html">Teachers</a>
         <a href="attendance.html">Attendance</a>
         <a href="scanner.html">Scanner</a>
+        <a href="qr.html">QR Codes</a>
         <a href="reports.html">Reports</a>
         <a href="settings.html">Settings</a>
         <a href="#" id="logoutLink">Log out</a>
@@ -25,7 +27,32 @@
     </aside>
     <main class="content">
       <h1>Welcome<span id="welcomeName"></span></h1>
-      <div class="card" id="profileCard">Loading profile…</div>
+
+      <div class="stat-cards" id="statCards">
+        <div class="stat-card"><div class="stat-value">—</div><div class="stat-label">Total students</div></div>
+        <div class="stat-card"><div class="stat-value">—</div><div class="stat-label">Total teachers</div></div>
+        <div class="stat-card"><div class="stat-value">—</div><div class="stat-label">Present today</div></div>
+        <div class="stat-card"><div class="stat-value">—</div><div class="stat-label">Late today</div></div>
+        <div class="stat-card"><div class="stat-value">—</div><div class="stat-label">Absent today</div></div>
+      </div>
+
+      <div class="dashboard-charts">
+        <div class="card chart-card">
+          <h2>Today's breakdown</h2>
+          <canvas id="todayChart" height="220"></canvas>
+        </div>
+        <div class="card chart-card">
+          <h2>Last 7 days — students present</h2>
+          <canvas id="trendChart" height="220"></canvas>
+        </div>
+      </div>
+
+      <div class="card" id="byGradeCard">
+        <h2>Today's attendance by grade</h2>
+        <div id="byGradeBars" class="grade-bars"></div>
+      </div>
+
+      <div class="card" id="profileCard" style="margin-top:20px;">Loading profile…</div>
     </main>
   </div>
 
@@ -56,6 +83,74 @@
           '<p><strong>Role:</strong> ' + p.role + '</p>' +
           '<p><strong>Status:</strong> ' + p.status + '</p>' +
           '<p><strong>Last login:</strong> ' + (p.lastLogin || '—') + '</p>';
+      });
+
+      function setStat(index, value) {
+        const cards = document.querySelectorAll('#statCards .stat-card .stat-value');
+        if (cards[index]) cards[index].textContent = value;
+      }
+
+      SAMS_API.call('getDashboardStats', {}).then(function (result) {
+        if (!result.success) {
+          document.getElementById('byGradeBars').textContent = result.error || 'Could not load statistics.';
+          return;
+        }
+        const d = result.data;
+        setStat(0, d.totalStudents);
+        setStat(1, d.totalTeachers);
+        setStat(2, d.presentToday);
+        setStat(3, d.lateToday);
+        setStat(4, d.absentToday);
+
+        new Chart(document.getElementById('todayChart'), {
+          type: 'doughnut',
+          data: {
+            labels: ['On time', 'Late', 'Absent'],
+            datasets: [{
+              data: [d.onTimeToday, d.lateToday, d.absentToday],
+              backgroundColor: ['#2f9e5c', '#e8a33d', '#d1473f'],
+              borderWidth: 0,
+            }],
+          },
+          options: {
+            plugins: { legend: { position: 'bottom', labels: { font: { family: 'Inter' } } } },
+          },
+        });
+
+        new Chart(document.getElementById('trendChart'), {
+          type: 'line',
+          data: {
+            labels: d.trend.map(function (t) { return t.label; }),
+            datasets: [{
+              label: 'Present',
+              data: d.trend.map(function (t) { return t.present; }),
+              borderColor: '#16283f',
+              backgroundColor: 'rgba(22,40,63,0.08)',
+              fill: true,
+              tension: 0.3,
+            }],
+          },
+          options: {
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+          },
+        });
+
+        const grades = Object.keys(d.byGrade).sort();
+        const maxCount = Math.max.apply(null, grades.map(function (g) { return d.byGrade[g]; }).concat([1]));
+        const byGradeBars = document.getElementById('byGradeBars');
+        if (grades.length === 0) {
+          byGradeBars.innerHTML = '<p class="empty-row">No attendance recorded yet today.</p>';
+        } else {
+          byGradeBars.innerHTML = grades.map(function (g) {
+            const pct = Math.round((d.byGrade[g] / maxCount) * 100);
+            return '<div class="grade-bar-row">' +
+              '<div class="grade-bar-label">Grade ' + g + '</div>' +
+              '<div class="grade-bar-track"><div class="grade-bar-fill" style="width:' + pct + '%"></div></div>' +
+              '<div class="grade-bar-count">' + d.byGrade[g] + '</div>' +
+            '</div>';
+          }).join('');
+        }
       });
     })();
   </script>
