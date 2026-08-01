@@ -41,6 +41,7 @@
         <table class="data-table">
           <thead>
             <tr>
+              <th></th>
               <th>Name</th>
               <th>Email</th>
               <th>Phone</th>
@@ -49,7 +50,7 @@
             </tr>
           </thead>
           <tbody id="teachersBody">
-            <tr><td colspan="5" class="empty-row">Loading teachers…</td></tr>
+            <tr><td colspan="6" class="empty-row">Loading teachers…</td></tr>
           </tbody>
         </table>
       </div>
@@ -63,6 +64,15 @@
 
       <form id="teacherForm">
         <input type="hidden" id="f_teacherId" />
+
+        <div class="photo-upload-row">
+          <img id="photoPreview" src="../assets/images/school-logo-placeholder.svg" class="photo-preview" alt="" />
+          <div>
+            <label class="btn-secondary photo-upload-btn" for="f_photo">Choose photo</label>
+            <input type="file" id="f_photo" accept="image/*" style="display:none;" />
+            <p class="section-sub" style="margin:6px 0 0;">Optional.</p>
+          </div>
+        </div>
 
         <div class="modal-grid">
           <div class="field">
