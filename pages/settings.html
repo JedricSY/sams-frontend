@@ -43,6 +43,17 @@
       </div>
 
       <div class="card settings-section">
+        <h2>Teacher notifications</h2>
+        <p class="section-sub">When a student checks in or arrives late, their teacher (matched by section) gets an automatic email. No setup needed — uses your school Gmail account.</p>
+        <div id="notifError" class="error-banner"></div>
+        <div id="notifStatus" class="report-status"></div>
+        <label class="toggle-row">
+          <input type="checkbox" id="notifToggle" />
+          <span>Email teachers when their students check in or arrive late</span>
+        </label>
+      </div>
+
+      <div class="card settings-section">
         <h2>Attendance session times</h2>
         <p class="section-sub">Scans recorded after a session's start time are marked <strong>Late</strong> instead of on-time.</p>
         <div id="sessionsError" class="error-banner"></div>
