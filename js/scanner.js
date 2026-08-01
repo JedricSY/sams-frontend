@@ -175,7 +175,11 @@
     const student = data.student;
     kioskResultCard.className = 'kiosk-result-pane state-' + status.toLowerCase();
     kioskResultPhoto.src = student.photo || LOGO_SRC;
-    kioskResultPhoto.onerror = function () { kioskResultPhoto.src = LOGO_SRC; };
+    kioskResultPhoto.classList.toggle('is-placeholder', !student.photo);
+    kioskResultPhoto.onerror = function () {
+      kioskResultPhoto.src = LOGO_SRC;
+      kioskResultPhoto.classList.add('is-placeholder');
+    };
     kioskResultStatus.textContent = statusLabel(status);
     kioskResultStatus.className = 'kiosk-result-status status-chip ' + status.toLowerCase();
     kioskResultName.textContent = student.name;
@@ -205,6 +209,7 @@
   function showKioskResult(kind, message, name, photoSrc) {
     kioskResultCard.className = 'kiosk-result-pane state-' + kind;
     kioskResultPhoto.src = photoSrc;
+    kioskResultPhoto.classList.toggle('is-placeholder', photoSrc === LOGO_SRC);
     kioskResultStatus.textContent = '';
     kioskResultStatus.className = 'kiosk-result-status';
     kioskResultName.textContent = name || message;
