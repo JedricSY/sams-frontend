@@ -17,13 +17,24 @@
   --green: #2f9e5c;
   --red: #d1473f;
   --border: #d9dde3;
-  --radius: 10px;
-  --shadow: 0 2px 10px rgba(15, 27, 45, 0.08);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow-sm: 0 1px 3px rgba(15, 27, 45, 0.06), 0 1px 2px rgba(15, 27, 45, 0.05);
+  --shadow: 0 4px 16px rgba(15, 27, 45, 0.07), 0 1px 3px rgba(15, 27, 45, 0.06);
+  --shadow-lg: 0 12px 32px rgba(15, 27, 45, 0.12), 0 2px 6px rgba(15, 27, 45, 0.08);
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
   --font-display: 'Fraunces', Georgia, serif;
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 * { box-sizing: border-box; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
 
 body {
   margin: 0;
@@ -34,6 +45,46 @@ body {
 }
 
 a { color: inherit; }
+
+/* A single, consistent focus ring everywhere — buttons, links, inputs —
+   rather than relying on each browser's inconsistent default outline. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Signature touch: every page header gets a short dashed ledger-line
+   underneath it, like the perforated tear-line in a register book — a
+   small, disciplined nod to "attendance ledger" that shows up everywhere
+   without ever competing with the content. */
+.content h1 {
+  position: relative;
+  padding-bottom: 14px;
+  margin-bottom: 24px;
+}
+
+.content h1::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 64px;
+  height: 0;
+  border-bottom: 2px dashed var(--amber);
+}
+
+.page-header h1 {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.page-header h1::after { display: none; }
 
 /* ---------- Login screen ---------- */
 
@@ -137,11 +188,12 @@ a { color: inherit; }
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background 0.15s var(--ease), transform 0.1s var(--ease), box-shadow 0.15s var(--ease);
 }
 
-.btn-primary:hover { background: var(--navy-700); }
-.btn-primary:disabled { background: #9aa6b5; cursor: not-allowed; }
+.btn-primary:hover { background: var(--navy-700); box-shadow: var(--shadow-sm); }
+.btn-primary:active { transform: translateY(1px); }
+.btn-primary:disabled { background: #9aa6b5; cursor: not-allowed; box-shadow: none; transform: none; }
 
 .error-banner {
   background: #fbe9e7;
@@ -191,11 +243,30 @@ a { color: inherit; }
   color: var(--navy-100);
   font-size: 14px;
   margin-bottom: 2px;
+  transition: background 0.15s var(--ease), padding-left 0.15s var(--ease);
+  position: relative;
 }
 
 .sidebar nav a.active,
 .sidebar nav a:hover {
   background: var(--navy-700);
+  padding-left: 16px;
+}
+
+.sidebar nav a.active {
+  font-weight: 600;
+}
+
+.sidebar nav a.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 16px;
+  background: var(--amber);
+  border-radius: 0 2px 2px 0;
 }
 
 .content {
@@ -214,6 +285,17 @@ a { color: inherit; }
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 20px;
+  margin-bottom: 20px;
+}
+
+.card:last-child { margin-bottom: 0; }
+
+/* These two grids already space their cards with `gap`, so the new
+   default .card margin would just add redundant empty space at the
+   bottom of each cell — cancel it out here specifically. */
+.scanner-layout .card,
+.dashboard-charts .card {
+  margin-bottom: 0;
 }
 
 .status-chip {
@@ -222,6 +304,7 @@ a { color: inherit; }
   border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 .status-chip.success { background: #e3f4ea; color: var(--green); }
@@ -428,6 +511,18 @@ a { color: inherit; }
   border-bottom: 1px solid var(--border);
 }
 
+.data-table tbody tr {
+  transition: background 0.1s var(--ease);
+}
+
+.data-table tbody tr:hover {
+  background: var(--navy-100);
+}
+
+.data-table tbody tr:has(.empty-row):hover {
+  background: transparent;
+}
+
 .data-table .empty-row {
   text-align: center;
   color: var(--ink-muted);
@@ -459,9 +554,23 @@ a { color: inherit; }
   align-items: center;
   justify-content: center;
   z-index: 50;
+  opacity: 0;
+  transition: opacity 0.15s var(--ease);
 }
 
-.modal-overlay.visible { display: flex; }
+.modal-overlay.visible {
+  display: flex;
+  opacity: 1;
+}
+
+.modal-overlay .modal {
+  transform: scale(0.97) translateY(6px);
+  transition: transform 0.15s var(--ease);
+}
+
+.modal-overlay.visible .modal {
+  transform: scale(1) translateY(0);
+}
 
 .modal {
   background: #fff;
@@ -644,31 +753,47 @@ body.kiosk-active { overflow: hidden; }
 }
 
 .kiosk-result-pane {
-  background: var(--paper);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 40px;
+  position: relative;
+  overflow: hidden;
+  background: var(--navy-950);
   transition: background 0.2s ease;
 }
 
-.kiosk-result-pane.state-success { background: #e3f4ea; }
-.kiosk-result-pane.state-late { background: #fdf1de; }
+/* A colored edge still communicates status at a glance even with a photo
+   filling the frame — a thick inset border reads clearly without covering
+   the image the way a full background tint would. */
+.kiosk-result-pane.state-success { box-shadow: inset 0 0 0 10px #2f9e5c; }
+.kiosk-result-pane.state-late { box-shadow: inset 0 0 0 10px var(--amber); }
 .kiosk-result-pane.state-invalid,
 .kiosk-result-pane.state-error,
-.kiosk-result-pane.state-duplicate { background: #fbe9e7; }
+.kiosk-result-pane.state-duplicate { box-shadow: inset 0 0 0 10px var(--red); }
 
 .kiosk-result-photo {
-  width: 160px;
-  height: 160px;
-  border-radius: 50%;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  border: 5px solid #fff;
-  box-shadow: 0 4px 18px rgba(15,27,45,0.15);
-  margin-bottom: 20px;
   background: var(--navy-950);
+}
+
+/* The fallback school logo is a small square mark, not a portrait — cover
+   would stretch and crop it oddly. Contain + padding + a flat background
+   keeps it looking like an intentional placeholder, not a broken photo. */
+.kiosk-result-photo.is-placeholder {
+  object-fit: contain;
+  padding: 15%;
+  background: var(--navy-800);
+}
+
+.kiosk-result-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 28px 32px 30px;
+  background: linear-gradient(to top, rgba(15,27,45,0.92) 0%, rgba(15,27,45,0.75) 45%, rgba(15,27,45,0) 100%);
+  color: #fff;
 }
 
 .kiosk-result-status {
@@ -679,12 +804,13 @@ body.kiosk-active { overflow: hidden; }
 .kiosk-result-name {
   font-family: var(--font-display);
   font-size: 34px;
-  color: var(--ink);
+  color: #fff;
+  line-height: 1.15;
 }
 
 .kiosk-result-meta {
   font-size: 16px;
-  color: var(--ink-muted);
+  color: rgba(255,255,255,0.85);
   margin-top: 6px;
 }
 
@@ -960,4 +1086,71 @@ body.kiosk-active { overflow: hidden; }
   object-fit: cover;
   vertical-align: middle;
   margin-right: 8px;
+}
+
+/* ---------- Student portal ---------- */
+
+.student-shell {
+  min-height: 100vh;
+  background: var(--paper);
+}
+
+.student-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 32px;
+  background: var(--navy-950);
+  color: var(--navy-100);
+}
+
+.student-topbar .mark {
+  font-family: var(--font-display);
+  font-size: 20px;
+}
+
+.student-topbar .btn-secondary {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  border-color: rgba(255,255,255,0.25);
+}
+
+.student-topbar .btn-secondary:hover { background: rgba(255,255,255,0.16); }
+
+.student-content {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.student-profile-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.student-profile-loading {
+  color: var(--ink-muted);
+  font-size: 14px;
+}
+
+.student-profile-photo {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--border);
+  background: var(--navy-950);
+  flex-shrink: 0;
+}
+
+.student-profile-name {
+  font-family: var(--font-display);
+  font-size: 24px;
+}
+
+.student-profile-meta {
+  font-size: 14px;
+  color: var(--ink-muted);
+  margin-top: 2px;
 }
