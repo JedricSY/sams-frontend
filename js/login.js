@@ -3,8 +3,12 @@
   const btn = document.getElementById('loginBtn');
   const errorBanner = document.getElementById('errorBanner');
 
+  function landingPageFor(role) {
+    return role === 'Student' ? 'pages/student.html' : 'pages/dashboard.html';
+  }
+
   if (SAMS_API.isLoggedIn()) {
-    window.location.href = 'pages/dashboard.html';
+    window.location.href = landingPageFor(sessionStorage.getItem('sams_role'));
     return;
   }
 
@@ -40,6 +44,6 @@
     SAMS_API.setToken(result.data.token);
     sessionStorage.setItem('sams_role', result.data.role);
     sessionStorage.setItem('sams_username', result.data.username);
-    window.location.href = 'pages/dashboard.html';
+    window.location.href = landingPageFor(result.data.role);
   });
 })();
