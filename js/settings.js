@@ -23,11 +23,39 @@
   const logoPreview = document.getElementById('logoPreview');
   const logoInput = document.getElementById('f_logo');
 
+  const notifError = document.getElementById('notifError');
+  const notifStatus = document.getElementById('notifStatus');
+  const notifToggle = document.getElementById('notifToggle');
+
   document.getElementById('logoutLink').addEventListener('click', async function (e) {
     e.preventDefault();
     await SAMS_API.call('logout', {});
     SAMS_API.setToken(null);
     window.location.href = '../index.html';
+  });
+
+  // ---------- Teacher notifications ----------
+
+  SAMS_API.call('getNotificationSettings', {}).then(function (result) {
+    if (result.success) notifToggle.checked = !!result.data.enabled;
+  });
+
+  notifToggle.addEventListener('change', async function () {
+    notifError.classList.remove('visible');
+    notifStatus.textContent = 'Saving…';
+
+    const result = await SAMS_API.call('saveNotificationSettings', { enabled: notifToggle.checked });
+
+    if (!result.success) {
+      notifToggle.checked = !notifToggle.checked; // revert the visual toggle
+      notifError.textContent = result.error || 'Could not save this setting.';
+      notifError.classList.add('visible');
+      notifStatus.textContent = '';
+      return;
+    }
+
+    notifStatus.textContent = 'Saved.';
+    setTimeout(function () { notifStatus.textContent = ''; }, 3000);
   });
 
   // ---------- School branding ----------
