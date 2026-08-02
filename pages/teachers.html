@@ -46,11 +46,12 @@
               <th>Email</th>
               <th>Phone</th>
               <th>Section assigned</th>
+              <th>Login</th>
               <th></th>
             </tr>
           </thead>
           <tbody id="teachersBody">
-            <tr><td colspan="6" class="empty-row">Loading teachers…</td></tr>
+            <tr><td colspan="7" class="empty-row">Loading teachers…</td></tr>
           </tbody>
         </table>
       </div>
@@ -118,6 +119,17 @@ Juan Reyes,juan.reyes@school.edu,09179876543,Grade 8 - Bonifacio"></textarea>
       <div class="modal-actions">
         <button type="button" class="btn-secondary" id="bulkCancelBtn">Cancel</button>
         <button type="button" class="btn-primary btn-inline" id="bulkSubmitBtn">Import teachers</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shown once after generating a login or resetting a password -->
+  <div class="modal-overlay" id="credentialsOverlay">
+    <div class="modal">
+      <h2 id="credentialsTitle">Login created</h2>
+      <div id="credentialsBody"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn-primary btn-inline" id="credentialsCloseBtn">Done</button>
       </div>
     </div>
   </div>
