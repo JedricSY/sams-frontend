@@ -32,7 +32,7 @@
   async function loadTeachers() {
     const result = await SAMS_API.call('getTeachers', {});
     if (!result.success) {
-      teachersBody.innerHTML = '<tr><td colspan="6" class="empty-row">' + (result.error || 'Could not load teachers.') + '</td></tr>';
+      teachersBody.innerHTML = '<tr><td colspan="7" class="empty-row">' + (result.error || 'Could not load teachers.') + '</td></tr>';
       return;
     }
     allTeachers = result.data || [];
@@ -47,19 +47,28 @@
     });
 
     if (filtered.length === 0) {
-      teachersBody.innerHTML = '<tr><td colspan="6" class="empty-row">No teachers match this search.</td></tr>';
+      teachersBody.innerHTML = '<tr><td colspan="7" class="empty-row">No teachers match this search.</td></tr>';
       return;
     }
 
     teachersBody.innerHTML = filtered.map(function (t) {
       const photoSrc = t.Photo || PLACEHOLDER_PHOTO;
+      const hasLogin = !!t.AccountID;
+      const loginAction = hasLogin
+        ? '<button class="link-btn" data-reset="' + t.TeacherID + '">Reset password</button>'
+        : '<button class="link-btn" data-generate="' + t.TeacherID + '">Generate login</button>';
+
       return '<tr>' +
         '<td><img src="' + photoSrc + '" class="row-thumb" alt="" onerror="this.src=\'' + PLACEHOLDER_PHOTO + '\'" /></td>' +
         '<td>' + escapeHtml(t.Name) + '</td>' +
         '<td>' + escapeHtml(t.Email) + '</td>' +
         '<td>' + escapeHtml(t.Phone) + '</td>' +
         '<td>' + escapeHtml(t.SectionAssigned) + '</td>' +
+        '<td>' + (hasLogin
+          ? '<span class="status-chip success">Has login</span>'
+          : '<span class="status-chip invalid">No login yet</span>') + '</td>' +
         '<td class="row-actions">' +
+          loginAction + ' ' +
           '<button class="link-btn" data-edit="' + t.TeacherID + '">Edit</button>' +
           '<button class="link-btn danger" data-delete="' + t.TeacherID + '">Delete</button>' +
         '</td>' +
@@ -72,6 +81,51 @@
     teachersBody.querySelectorAll('[data-delete]').forEach(function (btn) {
       btn.addEventListener('click', function () { confirmDelete(btn.getAttribute('data-delete')); });
     });
+    teachersBody.querySelectorAll('[data-generate]').forEach(function (btn) {
+      btn.addEventListener('click', function () { generateLogin(btn.getAttribute('data-generate')); });
+    });
+    teachersBody.querySelectorAll('[data-reset]').forEach(function (btn) {
+      btn.addEventListener('click', function () { resetPassword(btn.getAttribute('data-reset')); });
+    });
+  }
+
+  const credentialsOverlay = document.getElementById('credentialsOverlay');
+  const credentialsBody = document.getElementById('credentialsBody');
+
+  function showCredentials(title, username, tempPassword) {
+    document.getElementById('credentialsTitle').textContent = title;
+    credentialsBody.innerHTML =
+      '<p class="section-sub">Share these with the teacher directly — this is the only time the password is shown. They should change it via Settings → Change password after logging in.</p>' +
+      '<div class="credentials-row"><span>Username</span><code>' + escapeHtml(username) + '</code></div>' +
+      '<div class="credentials-row"><span>Temporary password</span><code>' + escapeHtml(tempPassword) + '</code></div>';
+    credentialsOverlay.classList.add('visible');
+  }
+
+  document.getElementById('credentialsCloseBtn').addEventListener('click', function () {
+    credentialsOverlay.classList.remove('visible');
+  });
+  credentialsOverlay.addEventListener('click', function (e) {
+    if (e.target === credentialsOverlay) credentialsOverlay.classList.remove('visible');
+  });
+
+  async function generateLogin(teacherId) {
+    const result = await SAMS_API.call('generateTeacherLogin', { teacherId: teacherId });
+    if (!result.success) {
+      window.alert(result.error || 'Could not generate a login.');
+      return;
+    }
+    showCredentials('Login created', result.data.username, result.data.tempPassword);
+    loadTeachers();
+  }
+
+  async function resetPassword(teacherId) {
+    if (!window.confirm("This replaces the teacher's current password with a new temporary one. Continue?")) return;
+    const result = await SAMS_API.call('resetTeacherPassword', { teacherId: teacherId });
+    if (!result.success) {
+      window.alert(result.error || 'Could not reset password.');
+      return;
+    }
+    showCredentials('Password reset', result.data.username, result.data.tempPassword);
   }
 
   function escapeHtml(value) {
