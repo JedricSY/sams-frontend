@@ -1154,3 +1154,29 @@ body.kiosk-active { overflow: hidden; }
   color: var(--ink-muted);
   margin-top: 2px;
 }
+
+/* ---------- Credentials display (teacher login generation) ---------- */
+
+.credentials-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.credentials-row span {
+  font-size: 13px;
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+
+.credentials-row code {
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  font-size: 15px;
+  background: var(--navy-100);
+  padding: 4px 10px;
+  border-radius: 6px;
+}
